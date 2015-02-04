@@ -26,7 +26,7 @@ import com.lambdaworks.redis.RedisAsyncConnection;
 @Produces(MediaType.APPLICATION_JSON)
 public class ApplicationUidService {
 
-    private static final int TTL = 86400000;
+    private static final int TTL = 300000;
 
     @Inject
     private MyRedisConnectionManager redis;
