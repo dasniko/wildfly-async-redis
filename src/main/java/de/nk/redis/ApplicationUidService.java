@@ -3,11 +3,14 @@ package de.nk.redis;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+import java.util.concurrent.ExecutionException;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -44,7 +47,7 @@ public class ApplicationUidService {
         redis.shutdown();
     }
 
-    @PUT
+    @POST
     @Path("/")
     public void aquireGuarantee(@Suspend(1000) final AsynchronousResponse response, final ApplicationUid app) {
         Future<String> result = connection.setexnx(app, "1", TTL);
@@ -54,6 +57,13 @@ public class ApplicationUidService {
                 response.setResponse(Response.status(null == future.get() ? Status.OK : Status.CREATED).build());
             }
         });
+    }
+
+    @PUT
+    @Path("/")
+    public Response aquireSyncGuarantee(final ApplicationUid app) throws InterruptedException, ExecutionException {
+        Future<String> f = connection.setexnx(app, "1", TTL);
+        return (null == f.get() ? Response.ok().build() : Response.created(null).build());
     }
 
 }
